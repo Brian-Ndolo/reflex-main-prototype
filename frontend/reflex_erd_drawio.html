@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reflex — Entity Relationship Diagram</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: white;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+      color: #1a1a1a;
+    }
+
+    @page {
+      size: A4 landscape;
+      margin: 0;
+    }
+
+    @media print {
+      body { width: 297mm; height: 210mm; overflow: hidden; }
+      .no-print { display: none !important; }
+    }
+
+    /* ── Page header ─────────────────────────────────────────── */
+    .page-header {
+      background: #1E3A5F;
+      color: white;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 50px;
+      flex-shrink: 0;
+    }
+    .ph-left { display: flex; flex-direction: column; gap: 2px; }
+    .ph-title { font-size: 13.5px; font-weight: 700; letter-spacing: 0.4px; }
+    .ph-sub { font-size: 9px; opacity: 0.72; }
+    .ph-right { font-size: 9px; opacity: 0.72; text-align: right; line-height: 1.7; }
+
+    /* ── ERD Canvas ────────────────────────────────────────────── */
+    .erd-canvas {
+      position: relative;
+      width: 1060px;
+      height: 645px;
+      margin: 0 auto;
+      background: white;
+      overflow: visible;
+    }
+
+    /* Dot grid like draw.io */
+    .dot-grid {
+      position: absolute; inset: 0;
+      background-image: radial-gradient(circle, #c0c0c0 1px, transparent 1px);
+      background-size: 18px 18px;
+      background-position: 0 0;
+      pointer-events: none;
+    }
+
+    /* SVG for lines — behind the entity tables */
+    .erd-svg {
+      position: absolute;
+      top: 0; left: 0;
+      overflow: visible;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* ── Entity tables ─────────────────────────────────────────── */
+    .entity {
+      position: absolute;
+      border-collapse: collapse;
+      font-size: 11px;
+      background: white;
+      box-shadow: 2px 3px 8px rgba(0,0,0,0.14), 0 0 0 0.5px rgba(0,0,0,0.08);
+      z-index: 2;
+    }
+
+    .entity thead th {
+      height: 30px;
+      padding: 0 10px;
+      font-size: 12px;
+      font-weight: 700;
+      text-align: left;
+      vertical-align: middle;
+      letter-spacing: 0.2px;
+    }
+
+    .entity tbody td {
+      height: 21px;
+      padding: 0 7px;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+
+    .entity tbody tr + tr td { border-top: 1px solid; }
+
+    .col-key { width: 28px; text-align: center; }
+    .col-name { font-weight: 500; }
+    .col-type {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 10px;
+      color: #555;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 7.5px;
+      font-weight: 700;
+      padding: 1px 3px;
+      border-radius: 2px;
+      letter-spacing: 0.2px;
+      line-height: 1.4;
+    }
+    .bp { background: #FFE566; color: #5A3900; }
+    .bf { background: #5B8EC4; color: #fff; }
+
+    /* ── USERS: blue ──────────────────────────────────────────── */
+    .e-users thead th { background: #dae8fc; border: 1.5px solid #6c8ebf; color: #1a3a5c; border-bottom: 1px solid #6c8ebf; }
+    .e-users tbody { border: 1.5px solid #6c8ebf; border-top: none; }
+    .e-users tbody td { border-color: #b8d0ea; }
+    .e-users .pk { background: #eef5ff; }
+    .e-users .fk { background: #f4f9ff; }
+
+    /* ── DELIVERIES: green ────────────────────────────────────── */
+    .e-del thead th { background: #d5e8d4; border: 1.5px solid #82b366; color: #1e4210; border-bottom: 1px solid #82b366; }
+    .e-del tbody { border: 1.5px solid #82b366; border-top: none; }
+    .e-del tbody td { border-color: #aecda4; }
+    .e-del .pk { background: #f0fff0; }
+    .e-del .fk { background: #f6fff4; }
+
+    /* ── DELIVERY_HISTORY: amber ──────────────────────────────── */
+    .e-hist thead th { background: #fff2cc; border: 1.5px solid #d6b656; color: #4a3000; border-bottom: 1px solid #d6b656; }
+    .e-hist tbody { border: 1.5px solid #d6b656; border-top: none; }
+    .e-hist tbody td { border-color: #e5d08a; }
+    .e-hist .pk { background: #fffef5; }
+    .e-hist .fk { background: #fffffc; }
+
+    /* ── PAYMENTS: purple ─────────────────────────────────────── */
+    .e-pay thead th { background: #e1d5e7; border: 1.5px solid #9673a6; color: #32104a; border-bottom: 1px solid #9673a6; }
+    .e-pay tbody { border: 1.5px solid #9673a6; border-top: none; }
+    .e-pay tbody td { border-color: #cbb8d8; }
+    .e-pay .pk { background: #fcf8ff; }
+    .e-pay .fk { background: #faf6ff; }
+
+    /* ── Annotation boxes ─────────────────────────────────────── */
+    .ann-box {
+      position: absolute;
+      background: white;
+      border: 1px solid #bbb;
+      padding: 8px 12px;
+      font-size: 9.5px;
+      box-shadow: 1px 2px 5px rgba(0,0,0,0.09);
+      z-index: 3;
+    }
+    .ann-title {
+      font-weight: 700;
+      font-size: 10px;
+      margin-bottom: 6px;
+      color: #222;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .ann-row {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 4px;
+      color: #444;
+      font-size: 9px;
+    }
+    .ann-row:last-child { margin-bottom: 0; }
+    .rel-row {
+      font-size: 8.8px;
+      color: #555;
+      line-height: 1.9;
+      font-family: "Courier New", monospace;
+    }
+
+    /* ── Status chips ─────────────────────────────────────────── */
+    .status-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 3px;
+      margin-top: 4px;
+    }
+    .sc {
+      padding: 2px 6px;
+      border-radius: 8px;
+      font-size: 8px;
+      font-weight: 600;
+      border: 1px solid;
+    }
+    .sc-open    { background:#e8f4ff; color:#1a5c9a; border-color:#9acbf0; }
+    .sc-claimed { background:#fff8e1; color:#7a5000; border-color:#ffd54f; }
+    .sc-assign  { background:#f3e8ff; color:#5a1a8a; border-color:#ce93d8; }
+    .sc-picked  { background:#e8ffe8; color:#1a5a1a; border-color:#81c784; }
+    .sc-transit { background:#fff3e0; color:#7a3000; border-color:#ffb74d; }
+    .sc-pending { background:#fce4ec; color:#7a0030; border-color:#f48fb1; }
+    .sc-done    { background:#e8f5e9; color:#1b5e20; border-color:#66bb6a; }
+    .sc-fail    { background:#ffebee; color:#7f0000; border-color:#ef9a9a; }
+  </style>
+</head>
+<body>
+
+<!-- ════ PAGE HEADER ════ -->
+<div class="page-header">
+  <div class="ph-left">
+    <div class="ph-title">REFLEX DELIVERY MANAGEMENT SYSTEM — ENTITY RELATIONSHIP DIAGRAM</div>
+    <div class="ph-sub">Crow's Foot (IE) Notation &nbsp;·&nbsp; MySQL / JSON Storage &nbsp;·&nbsp; 4 Entities &nbsp;·&nbsp; 5 Relationships &nbsp;·&nbsp; Engine: InnoDB / utf8mb4</div>
+  </div>
+  <div class="ph-right">
+    <div>Version 1.0.0 &nbsp;·&nbsp; 2026-09-02</div>
+    <div>Engineering Team Documentation</div>
+  </div>
+</div>
+
+<!-- ════ ERD CANVAS ════ -->
+<div class="erd-canvas">
+  <div class="dot-grid"></div>
+
+  <!-- ══════════════════════════════════════════════
+       SVG — RELATIONSHIP LINES & CROW'S FOOT
+       Entity positions (all absolute px):
+         USERS            : left=30,  top=55,  w=265, h=30+6×21=156  → right=295, bot=211, midY=133
+         DELIVERIES       : left=375, top=25,  w=290, h=30+12×21=282 → right=665, bot=307, midY=166
+         DELIVERY_HISTORY : left=725, top=55,  w=272, h=30+5×21=135  → right=997, bot=190, midY=122
+         PAYMENTS         : left=725, top=345, w=272, h=30+10×21=240 → right=997, bot=585, midY=465
+       ══════════════════════════════════════════════ -->
+  <svg class="erd-svg" width="1100" height="660">
+
+    <!-- ─────── LINE 1a: USERS → DELIVERIES  (retailerId, solid) ─────── -->
+    <!--  Route: (295,125) ─ (338,125) ─ (338,88) ─ [crowfoot] (375,88)  -->
+    <polyline points="295,125 338,125 338,88 365,88"
+              stroke="#6c8ebf" stroke-width="1.6" fill="none"/>
+    <!-- crowfoot at DELIVERIES.left, pointing right, entering at x=375 -->
+    <line x1="361" y1="83" x2="361" y2="93" stroke="#6c8ebf" stroke-width="1.6"/>
+    <path d="M378,88 L365,83 M378,88 L365,88 M378,88 L365,93"
+          stroke="#6c8ebf" stroke-width="1.5" fill="none"/>
+    <!-- one-mandatory at USERS.right(295,125): two ticks -->
+    <line x1="298" y1="120" x2="298" y2="130" stroke="#6c8ebf" stroke-width="1.6"/>
+    <line x1="304" y1="120" x2="304" y2="130" stroke="#6c8ebf" stroke-width="1.6"/>
+    <!-- cardinality labels -->
+    <text x="287" y="117" font-family="Arial" font-size="9.5" fill="#1a3a5c" font-weight="700">1</text>
+    <text x="358" y="81" font-family="Arial" font-size="9.5" fill="#1a3a5c" font-weight="700">N</text>
+    <!-- rel label -->
+    <text x="316" y="118" font-family="Arial" font-size="8.5" fill="#555" text-anchor="middle" font-style="italic">retailerId</text>
+
+    <!-- ─────── LINE 1b: USERS → DELIVERIES  (riderId, dashed/nullable) ─ -->
+    <!--  Route: (295,153) ─ (344,153) ─ (344,109) ─ [crowfoot] (375,109) -->
+    <polyline points="295,153 344,153 344,109 365,109"
+              stroke="#6c8ebf" stroke-width="1.5" stroke-dasharray="5,3" fill="none"/>
+    <!-- crowfoot at DELIVERIES.left -->
+    <line x1="361" y1="104" x2="361" y2="114" stroke="#6c8ebf" stroke-width="1.5"/>
+    <path d="M378,109 L365,104 M378,109 L365,109 M378,109 L365,114"
+          stroke="#6c8ebf" stroke-width="1.4" fill="none"/>
+    <!-- zero-or-one at USERS.right(295,153): circle + tick -->
+    <circle cx="300" cy="153" r="3.5" fill="none" stroke="#6c8ebf" stroke-width="1.5"/>
+    <line x1="307" y1="148" x2="307" y2="158" stroke="#6c8ebf" stroke-width="1.5"/>
+    <text x="287" y="161" font-family="Arial" font-size="9.5" fill="#1a3a5c" font-weight="700">0,1</text>
+    <text x="358" y="103" font-family="Arial" font-size="9.5" fill="#1a3a5c" font-weight="700">N</text>
+    <text x="319" y="147" font-family="Arial" font-size="8.5" fill="#555" text-anchor="middle" font-style="italic">riderId</text>
+
+    <!-- ─────── LINE 2: DELIVERIES → DELIVERY_HISTORY  (deliveryId) ──── -->
+    <!--  Route: (665,166) ─ (694,166) ─ (694,122) ─ [crowfoot] (725,122) -->
+    <polyline points="665,166 694,166 694,122 715,122"
+              stroke="#82b366" stroke-width="1.6" fill="none"/>
+    <!-- crowfoot at DELIVERY_HISTORY.left -->
+    <line x1="711" y1="117" x2="711" y2="127" stroke="#82b366" stroke-width="1.6"/>
+    <path d="M728,122 L715,117 M728,122 L715,122 M728,122 L715,127"
+          stroke="#82b366" stroke-width="1.5" fill="none"/>
+    <!-- one-mandatory at DELIVERIES.right(665,166) -->
+    <line x1="668" y1="161" x2="668" y2="171" stroke="#82b366" stroke-width="1.6"/>
+    <line x1="674" y1="161" x2="674" y2="171" stroke="#82b366" stroke-width="1.6"/>
+    <text x="657" y="158" font-family="Arial" font-size="9.5" fill="#1e4210" font-weight="700">1</text>
+    <text x="703" y="116" font-family="Arial" font-size="9.5" fill="#1e4210" font-weight="700">N</text>
+    <text x="694" y="148" font-family="Arial" font-size="8.5" fill="#555" text-anchor="middle" font-style="italic">deliveryId</text>
+
+    <!-- ─────── LINE 3: DELIVERIES → PAYMENTS  (deliveryId) ───────────── -->
+    <!--  Route: (665,230) ─ (699,230) ─ (699,409) ─ [crowfoot] (725,409) -->
+    <polyline points="665,230 699,230 699,409 715,409"
+              stroke="#9673a6" stroke-width="1.6" fill="none"/>
+    <!-- crowfoot at PAYMENTS.left -->
+    <line x1="711" y1="404" x2="711" y2="414" stroke="#9673a6" stroke-width="1.6"/>
+    <path d="M728,409 L715,404 M728,409 L715,409 M728,409 L715,414"
+          stroke="#9673a6" stroke-width="1.5" fill="none"/>
+    <!-- one-mandatory at DELIVERIES.right(665,230) -->
+    <line x1="668" y1="225" x2="668" y2="235" stroke="#9673a6" stroke-width="1.6"/>
+    <line x1="674" y1="225" x2="674" y2="235" stroke="#9673a6" stroke-width="1.6"/>
+    <text x="657" y="223" font-family="Arial" font-size="9.5" fill="#32104a" font-weight="700">1</text>
+    <text x="703" y="403" font-family="Arial" font-size="9.5" fill="#32104a" font-weight="700">N</text>
+    <text x="699" y="325" font-family="Arial" font-size="8.5" fill="#555" text-anchor="middle" font-style="italic" transform="rotate(-90,699,325)">deliveryId</text>
+
+    <!-- ─────── LINE 4: USERS → PAYMENTS (riderId, dashed/nullable) ───── -->
+    <!--  Route: USERS.bottom(162,211) down → right → up → PAYMENTS.right(997,430) -->
+    <polyline points="162,211 162,625 1012,625 1012,430 997,430"
+              stroke="#9673a6" stroke-width="1.5" stroke-dasharray="5,3" fill="none"/>
+    <!-- crowfoot at PAYMENTS.right(997,430) — pointing LEFT into PAYMENTS -->
+    <line x1="1000" y1="425" x2="1000" y2="435" stroke="#9673a6" stroke-width="1.5"/>
+    <path d="M984,430 L997,425 M984,430 L997,430 M984,430 L997,435"
+          stroke="#9673a6" stroke-width="1.4" fill="none"/>
+    <!-- zero-or-one at USERS.bottom(162,211) — line goes DOWN -->
+    <circle cx="162" cy="217" r="3.5" fill="none" stroke="#9673a6" stroke-width="1.5"/>
+    <line x1="157" y1="223" x2="167" y2="223" stroke="#9673a6" stroke-width="1.5"/>
+    <!-- label along the bottom route -->
+    <text x="580" y="619" font-family="Arial" font-size="8.5" fill="#666" text-anchor="middle" font-style="italic">users.id → payments.riderId (nullable rider earnings reference)</text>
+    <text x="170" y="222" font-family="Arial" font-size="9" fill="#32104a" font-weight="700">0,1</text>
+    <text x="990" y="418" font-family="Arial" font-size="9" fill="#32104a" font-weight="700">N</text>
+
+  </svg>
+
+  <!-- ══════════════════════════════
+       ENTITY: users
+       left=30, top=55, w=265
+       ══════════════════════════════ -->
+  <table class="entity e-users" style="left:30px;top:55px;width:265px;">
+    <thead>
+      <tr><th colspan="3">👤&nbsp; users</th></tr>
+    </thead>
+    <tbody>
+      <tr class="pk">
+        <td class="col-key"><span class="badge bp">PK</span></td>
+        <td class="col-name">id</td>
+        <td class="col-type">VARCHAR(20)&nbsp;NN</td>
+      </tr>
+      <tr>
+        <td class="col-key"></td>
+        <td class="col-name">name</td>
+        <td class="col-type">VARCHAR(100)&nbsp;NN</td>
+      </tr>
+      <tr>
+        <td class="col-key"></td>
+        <td class="col-name">role</td>
+        <td class="col-type">ENUM&nbsp;NN</td>
+      </tr>
+      <tr>
+        <td class="col-key"></td>
+        <td class="col-name">email</td>
+        <td class="col-type">VARCHAR(150)&nbsp;UQ</td>
+      </tr>
+      <tr>
+        <td class="col-key"></td>
+        <td class="col-name">password</td>
+        <td class="col-type">VARCHAR(255)&nbsp;NN</td>
+      </tr>
+      <tr>
+        <td class="col-key"></td>
+        <td class="col-name">phone</td>
+        <td class="col-type">VARCHAR(20)&nbsp;NN</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ══════════════════════════════
+       ENTITY: deliveries
+       left=375, top=25, w=290
+       ══════════════════════════════ -->
+  <table class="entity e-del" style="left:375px;top:25px;width:290px;">
+    <thead>
+      <tr><th colspan="3">📦&nbsp; deliveries</th></tr>
+    </thead>
+    <tbody>
+      <tr class="pk">
+        <td class="col-key"><span class="badge bp">PK</span></td>
+        <td class="col-name">id</td>
+        <td class="col-type">VARCHAR(20)&nbsp;NN</td>
+      </tr>
+      <tr class="fk">
+        <td class="col-key"><span class="badge bf">FK</span></td>
+        <td class="col-name">retailerId</td>
+        <td class="col-type">VARCHAR(20)&nbsp;NN</td>
+      </tr>
+      <tr class="fk">
+        <td class="col-key"><span class="badge bf">FK</span></td>
+        <td class="col-name">riderId</td>
+        <td class="col-type">VARCHAR(20)&nbsp;NULL</td>
+      </tr>
+      <tr>
+        <td class="col-key"></td>
+        <td class="col-name">customerName</td>
+        <td class="col-type">VARCHAR(100)&nbsp;NN</td>
+      </tr>
+      <tr>
+        <td class="col-key"></td>
+        <td class="col-name">customerPhone</td>
+        <td class="col-type">VARCHAR(20)&nbsp;NN</td>
+      </tr>
+      <tr>
+        <td class="col-key"></td>
+        <td class="col-name">address</td>
+        <td class="col-type">VARCHAR(255)&nbsp;NN</td>
+      </tr>
+      <tr>
+        <td class="col-key"></td>
+        <td class="col-name">item</td>
+        <td class="col-type">VARCHAR(255)&nbsp;NN</td>
+      </tr>
+      <tr>
+        <td class="col-key"></td>
+        <td class="col-name">status</td>
+        <td class="col-type">VARCHAR(30)&nbsp;NN</td>
+      </tr>
+      <tr>
+        <td class="col-key"></td>
+        <td class="col-name">paymentStatus</td>
+        <td class="col-type">VARCHAR(32)&nbsp;DEF</td>
+      </tr>
+      <tr>
+        <td class="col-key"></td>
+        <td class="col-name">mpesaRef</td>
+        <td class="col-type">VARCHAR(64)&nbsp;NULL</td>
+      </tr>
+      <tr>
+        <td class="col-key"></td>
+        <td class="col-name">createdAt</td>
+        <td class="col-type">DATETIME&nbsp;NN</td>
+      </tr>
+      <tr>
+        <td class="col-key"></td>
+        <td class="col-name">updatedAt</td>
+        <td class="col-type">DATETIME&nbsp;NN</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ══════════════════════════════
+       ENTITY: delivery_history
+       left=725, top=55, w=272
+       ══════════════════════════════ -->
+  <table class="entity e-hist" style="left:725px;top:55px;width:272px;">
+    <thead>
+      <tr><th colspan="3">📋&nbsp; delivery_history</th></tr>
+    </thead>
+    <tbody>
+      <tr class="pk">
+        <td class="col-key"><span class="badge bp">PK</span></td>
+        <td class="col-name">id</td>
+        <td class="col-type">INT&nbsp;AI&nbsp;NN</td>
+      </tr>
+      <tr class="fk">
+        <td class="col-key"><span class="badge bf">FK</span></td>
+        <td class="col-name">deliveryId</td>
+        <td class="col-type">VARCHAR(20)&nbsp;NN</td>
+      </tr>
+      <tr>
+        <td class="col-key"></td>
+        <td class="col-name">status</td>
+        <td class="col-type">VARCHAR(30)&nbsp;NN</td>
+      </tr>
+      <tr>
+        <td class="col-key"></td>
+        <td class="col-name">at_time</td>
+        <td class="col-type">DATETIME&nbsp;NN</td>
+      </tr>
+      <tr>
+        <td class="col-key"></td>
+        <td class="col-name">note</td>
+        <td class="col-type">VARCHAR(255)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ══════════════════════════════
+       ENTITY: payments
+       left=725, top=345, w=272
+       ══════════════════════════════ -->
+  <table class="entity e-pay" style="left:725px;top:345px;width:272px;">
+    <thead>
+      <tr><th colspan="3">💳&nbsp; payments</th></tr>
+    </thead>
+    <tbody>
+      <tr class="pk">
+        <td class="col-key"><span class="badge bp">PK</span></td>
+        <td class="col-name">id</td>
+        <td class="col-type">VARCHAR(64)&nbsp;NN</td>
+      </tr>
+      <tr class="fk">
+        <td class="col-key"><span class="badge bf">FK</span></td>
+        <td class="col-name">deliveryId</td>
+        <td class="col-type">VARCHAR(64)</td>
+      </tr>
+      <tr class="fk">
+        <td class="col-key"><span class="badge bf">FK</span></td>
+        <td class="col-name">riderId</td>
+        <td class="col-type">VARCHAR(64)&nbsp;NULL</td>
+      </tr>
+      <tr>
+        <td class="col-key"></td>
+        <td class="col-name">phone</td>
+        <td class="col-type">VARCHAR(32)</td>
+      </tr>
+      <tr>
+        <td class="col-key"></td>
+        <td class="col-name">amount</td>
+        <td class="col-type">DECIMAL(10,2)</td>
+      </tr>
+      <tr>
+        <td class="col-key"></td>
+        <td class="col-name">status</td>
+        <td class="col-type">VARCHAR(32)</td>
+      </tr>
+      <tr>
+        <td class="col-key"></td>
+        <td class="col-name">checkoutRequestId</td>
+        <td class="col-type">VARCHAR(128)</td>
+      </tr>
+      <tr>
+        <td class="col-key"></td>
+        <td class="col-name">mpesaRef</td>
+        <td class="col-type">VARCHAR(64)&nbsp;NULL</td>
+      </tr>
+      <tr>
+        <td class="col-key"></td>
+        <td class="col-name">paidAt</td>
+        <td class="col-type">VARCHAR(64)&nbsp;NULL</td>
+      </tr>
+      <tr>
+        <td class="col-key"></td>
+        <td class="col-name">createdAt</td>
+        <td class="col-type">VARCHAR(64)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ══ LEGEND BOX — bottom-left ══ -->
+  <div class="ann-box" style="left:30px;top:285px;width:265px;">
+    <div class="ann-title">🔣 Notation Legend</div>
+    <div class="ann-row">
+      <span class="badge bp" style="font-size:8px;">PK</span>
+      <span>Primary Key — unique row identifier</span>
+    </div>
+    <div class="ann-row">
+      <span class="badge bf" style="font-size:8px;">FK</span>
+      <span>Foreign Key — references another table</span>
+    </div>
+    <div class="ann-row">
+      <svg width="36" height="14"><line x1="0" y1="7" x2="36" y2="7" stroke="#555" stroke-width="1.5"/><line x1="0" y1="3" x2="0" y2="11" stroke="#555" stroke-width="1.5"/><line x1="6" y1="3" x2="6" y2="11" stroke="#555" stroke-width="1.5"/></svg>
+      <span>One (mandatory / exactly 1)</span>
+    </div>
+    <div class="ann-row">
+      <svg width="36" height="14"><line x1="0" y1="7" x2="36" y2="7" stroke="#555" stroke-width="1.5" stroke-dasharray="4,2"/><circle cx="6" cy="7" r="3" fill="none" stroke="#555" stroke-width="1.5"/><line x1="12" y1="3" x2="12" y2="11" stroke="#555" stroke-width="1.5"/></svg>
+      <span>Zero or One (optional FK)</span>
+    </div>
+    <div class="ann-row">
+      <svg width="36" height="14"><path d="M0,7 L13,3 M0,7 L13,7 M0,7 L13,11" stroke="#555" stroke-width="1.5" fill="none"/><line x1="15" y1="3" x2="15" y2="11" stroke="#555" stroke-width="1.5"/><line x1="15" y1="7" x2="36" y2="7" stroke="#555" stroke-width="1.5"/></svg>
+      <span>Many (crow's foot)</span>
+    </div>
+    <div style="margin-top:7px;padding-top:7px;border-top:1px solid #e0e0e0;font-size:8.2px;color:#666;line-height:1.7;">
+      NN = NOT NULL &nbsp;·&nbsp; UQ = UNIQUE &nbsp;·&nbsp; AI = AUTO_INCREMENT<br>
+      DEF = DEFAULT value &nbsp;·&nbsp; NULL = nullable column
+    </div>
+  </div>
+
+  <!-- ══ RELATIONSHIPS SUMMARY ══ -->
+  <div class="ann-box" style="left:30px;top:460px;width:265px;">
+    <div class="ann-title">🔗 Relationships</div>
+    <div class="rel-row">
+      users ——||——o{— deliveries<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-size:8px;color:#888;">(via retailerId, mandatory)</span><br>
+      users ——0|——o{— deliveries<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-size:8px;color:#888;">(via riderId, nullable)</span><br>
+      deliveries ——||——o{— delivery_history<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-size:8px;color:#888;">(audit trail)</span><br>
+      deliveries ——||——o{— payments<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-size:8px;color:#888;">(M-Pesa STK push)</span><br>
+      users ——0|——o{— payments<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="font-size:8px;color:#888;">(rider earnings reference)</span>
+    </div>
+  </div>
+
+  <!-- ══ DELIVERY STATUS FLOW ══ -->
+  <div class="ann-box" style="left:375px;top:335px;width:310px;">
+    <div class="ann-title">🔄 Delivery Status Lifecycle</div>
+    <div class="status-chips">
+      <span class="sc sc-open">Open</span>
+      <span style="color:#aaa;font-size:10px;">→</span>
+      <span class="sc sc-claimed">Claimed</span>
+      <span style="color:#aaa;font-size:10px;">→</span>
+      <span class="sc sc-assign">Assigned</span>
+      <span style="color:#aaa;font-size:10px;">→</span>
+      <span class="sc sc-picked">Picked Up</span>
+      <span style="color:#aaa;font-size:10px;">→</span>
+      <span class="sc sc-transit">Out for Delivery</span>
+      <span style="color:#aaa;font-size:10px;">→</span>
+      <span class="sc sc-pending">Pending Confirmation</span>
+      <span style="color:#aaa;font-size:10px;">→</span>
+      <span class="sc sc-done">✓ Delivered</span>
+    </div>
+    <div style="margin-top:6px;font-size:8.2px;color:#666;">
+      Terminal: <span class="sc sc-done" style="font-size:7.5px;">Delivered</span>&nbsp;
+      <span class="sc sc-fail" style="font-size:7.5px;background:#ffebee;color:#7f0000;border-color:#ef9a9a;">Failed</span>&nbsp;
+      <span class="sc" style="font-size:7.5px;background:#f5f5f5;color:#555;border-color:#bbb;">Cancelled</span>
+    </div>
+  </div>
+
+  <!-- ══ PAYMENT STATUS ══ -->
+  <div class="ann-box" style="left:375px;top:420px;width:310px;">
+    <div class="ann-title">💰 Payment Flow (M-Pesa STK)</div>
+    <div class="status-chips">
+      <span class="sc sc-claimed">PENDING</span>
+      <span style="color:#aaa;font-size:10px;">→</span>
+      <span class="sc sc-done">PAID</span>
+      <span style="color:#aaa;font-size:9px;"> or </span>
+      <span class="sc sc-fail">FAILED</span>
+    </div>
+    <div style="margin-top:5px;font-size:8px;color:#666;line-height:1.6;">
+      Retailer initiates STK push → payments record created (PENDING)<br>
+      Safaricom callback updates status → PAID unlocks rider assignment
+    </div>
+  </div>
+
+  <!-- ══ STORAGE MODES NOTE ══ -->
+  <div class="ann-box" style="left:375px;top:500px;width:310px;">
+    <div class="ann-title">🗄️ Storage Modes</div>
+    <div style="font-size:8.5px;color:#555;line-height:1.7;">
+      <b>Production:</b> MySQL (InnoDB, utf8mb4, FK constraints enforced)<br>
+      <b>Local Dev:</b> JSON file (<code>backend/data/db.json</code>)<br>
+      Auto-detects at startup — no code changes needed between modes.
+    </div>
+  </div>
+
+</div><!-- /erd-canvas -->
+
+<!-- ════ PRINT BUTTON (hidden in PDF) ════ -->
+<div class="no-print" style="text-align:center;padding:20px;background:#f5f5f5;border-top:1px solid #ddd;">
+  <button onclick="window.print()"
+    style="padding:10px 28px;background:#1E3A5F;color:white;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">
+    🖨️ Print / Save as PDF
+  </button>
+  <p style="margin-top:8px;font-size:11px;color:#888;">
+    Use <b>Ctrl+P</b> → set destination to <b>Save as PDF</b>, paper size <b>A4 Landscape</b>, margins <b>None</b>
+  </p>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,1359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reflex — Entity Relationship Diagram</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:        #0d1117;
+      --surface:   #161b22;
+      --surface2:  #1c2333;
+      --border:    #30363d;
+      --border2:   #21262d;
+      --text:      #e6edf3;
+      --text2:     #8b949e;
+      --text3:     #6e7681;
+
+      --accent-blue:   #58a6ff;
+      --accent-green:  #3fb950;
+      --accent-yellow: #d29922;
+      --accent-purple: #bc8cff;
+      --accent-red:    #f85149;
+      --accent-orange: #ffa657;
+      --accent-teal:   #39d353;
+      --accent-pink:   #ff7b72;
+
+      --entity-users:    #1f2d3d;
+      --entity-del:      #1a2d1a;
+      --entity-hist:     #2d2318;
+      --entity-pay:      #2d1f2d;
+
+      --header-users:    #0d2035;
+      --header-del:      #0d2010;
+      --header-hist:     #2d1e0d;
+      --header-pay:      #2d0d2d;
+
+      --accent-users:    #58a6ff;
+      --accent-del:      #3fb950;
+      --accent-hist:     #ffa657;
+      --accent-pay:      #bc8cff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: auto;
+    }
+
+    /* ─── HEADER ──────────────────────────────────────────────── */
+    .page-header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 20px 36px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-left { display: flex; align-items: center; gap: 14px; }
+    .logo-badge {
+      background: linear-gradient(135deg, #a51d2d, #c0392b);
+      color: #fff;
+      font-weight: 800;
+      font-size: 15px;
+      letter-spacing: 2px;
+      padding: 6px 14px;
+      border-radius: 6px;
+    }
+    .doc-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .doc-subtitle {
+      font-size: 12px;
+      color: var(--text2);
+      margin-top: 2px;
+    }
+    .header-meta {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+    .meta-badge {
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 4px 10px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      color: var(--text2);
+      background: var(--surface2);
+    }
+    .meta-badge.version { color: var(--accent-green); border-color: #3fb95040; background: #0d2010; }
+    .meta-badge.date { color: var(--accent-yellow); border-color: #d2992240; background: #2d2318; }
+
+    /* ─── LAYOUT ──────────────────────────────────────────────── */
+    .page-body { padding: 32px 36px; max-width: 1800px; margin: 0 auto; }
+
+    /* ─── SECTION LABELS ──────────────────────────────────────── */
+    .section-label {
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text3);
+      font-weight: 600;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ─── ERD CANVAS ──────────────────────────────────────────── */
+    .erd-canvas {
+      position: relative;
+      width: 100%;
+      min-height: 680px;
+    }
+
+    svg.erd-svg {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .entities-grid {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    /* ─── ENTITY CARD ─────────────────────────────────────────── */
+    .entity {
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1.5px solid var(--border);
+      font-size: 12.5px;
+      transition: box-shadow 0.25s;
+    }
+    .entity:hover {
+      box-shadow: 0 0 0 2px var(--entity-accent), 0 8px 32px rgba(0,0,0,0.5);
+    }
+
+    .entity.users   { background: var(--entity-users); --entity-accent: var(--accent-users); }
+    .entity.del     { background: var(--entity-del);   --entity-accent: var(--accent-del); }
+    .entity.hist    { background: var(--entity-hist);  --entity-accent: var(--accent-hist); }
+    .entity.pay     { background: var(--entity-pay);   --entity-accent: var(--accent-pay); }
+
+    .entity-header {
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .entity.users .entity-header { background: var(--header-users); }
+    .entity.del   .entity-header { background: var(--header-del); }
+    .entity.hist  .entity-header { background: var(--header-hist); }
+    .entity.pay   .entity-header { background: var(--header-pay); }
+
+    .entity-icon {
+      font-size: 18px;
+      line-height: 1;
+    }
+    .entity-name {
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 0.5px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .entity.users .entity-name { color: var(--accent-users); }
+    .entity.del   .entity-name { color: var(--accent-del); }
+    .entity.hist  .entity-name { color: var(--accent-hist); }
+    .entity.pay   .entity-name { color: var(--accent-pay); }
+
+    .entity-table-tag {
+      margin-left: auto;
+      font-size: 9px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 3px;
+      color: #fff;
+      opacity: 0.7;
+    }
+    .entity.users .entity-table-tag { background: var(--accent-users); }
+    .entity.del   .entity-table-tag { background: var(--accent-del); }
+    .entity.hist  .entity-table-tag { background: var(--accent-hist); }
+    .entity.pay   .entity-table-tag { background: var(--accent-pay); }
+
+    /* ─── ATTRIBUTES ──────────────────────────────────────────── */
+    .attributes { padding: 6px 0; }
+
+    .attr-row {
+      display: grid;
+      grid-template-columns: 20px 1fr auto;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 14px;
+      transition: background 0.15s;
+    }
+    .attr-row:hover { background: rgba(255,255,255,0.03); }
+    .attr-row.pk { background: rgba(255,215,0,0.04); }
+    .attr-row.fk { background: rgba(88,166,255,0.04); }
+    .attr-row + .attr-row { border-top: 1px solid var(--border2); }
+
+    .attr-icon {
+      font-size: 11px;
+      text-align: center;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .icon-pk { color: #fbbf24; }
+    .icon-fk { color: var(--accent-blue); }
+    .icon-nn { color: var(--text3); }
+
+    .attr-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      color: var(--text);
+      font-weight: 500;
+    }
+    .attr-row.pk .attr-name { color: #fbbf24; }
+    .attr-row.fk .attr-name { color: var(--accent-blue); }
+
+    .attr-type {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--text3);
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .attr-constraints {
+      display: flex;
+      gap: 3px;
+      margin-top: 1px;
+    }
+    .constraint {
+      font-size: 8.5px;
+      padding: 1px 4px;
+      border-radius: 2px;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .constraint.pk-c  { background: #7c5c0030; color: #fbbf24; border: 1px solid #fbbf2440; }
+    .constraint.fk-c  { background: #1e3a5f30; color: #58a6ff; border: 1px solid #58a6ff40; }
+    .constraint.nn-c  { background: #1c2333; color: var(--text3); border: 1px solid var(--border); }
+    .constraint.uq-c  { background: #2d1f2d30; color: var(--accent-purple); border: 1px solid #bc8cff40; }
+    .constraint.ai-c  { background: #1a2d1a30; color: var(--accent-green); border: 1px solid #3fb95040; }
+    .constraint.en-c  { background: #2d200030; color: var(--accent-orange); border: 1px solid #ffa65740; }
+    .constraint.def-c { background: #1c2333; color: var(--text3); border: 1px solid var(--border); }
+
+    .attr-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 3px;
+    }
+
+    /* divider */
+    .attr-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 4px 0;
+    }
+    .attr-section-label {
+      padding: 3px 14px;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--text3);
+      font-weight: 600;
+    }
+
+    /* ─── RELATIONSHIP LINES (SVG, drawn below) ───────────────── */
+
+    /* ─── BOTTOM PANELS ───────────────────────────────────────── */
+    .bottom-panels {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1.4fr;
+      gap: 24px;
+      margin-top: 32px;
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .panel-header {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface2);
+    }
+    .panel-icon { font-size: 16px; }
+    .panel-title { font-size: 12px; font-weight: 700; color: var(--text); }
+    .panel-body { padding: 14px 16px; }
+
+    /* Legend */
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 0;
+      font-size: 12px;
+    }
+    .legend-item + .legend-item { border-top: 1px solid var(--border2); }
+    .legend-swatch {
+      width: 28px;
+      height: 18px;
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .legend-desc { color: var(--text2); font-size: 11.5px; }
+
+    /* Status machine */
+    .status-flow {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .status-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .status-step-left {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 20px;
+      flex-shrink: 0;
+    }
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-top: 3px;
+      flex-shrink: 0;
+    }
+    .status-line {
+      width: 2px;
+      flex: 1;
+      min-height: 18px;
+      background: var(--border);
+      margin-top: 3px;
+    }
+    .status-info { padding-bottom: 12px; }
+    .status-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .status-note {
+      font-size: 10.5px;
+      color: var(--text3);
+      margin-top: 2px;
+    }
+    .status-actor {
+      font-size: 9px;
+      padding: 1px 6px;
+      border-radius: 3px;
+      font-weight: 600;
+      display: inline-block;
+      margin-top: 3px;
+    }
+    .actor-retailer { background: #0d203580; color: var(--accent-blue); border: 1px solid #58a6ff40; }
+    .actor-rider    { background: #0d20108060; color: var(--accent-green); border: 1px solid #3fb95040; }
+    .actor-dispatcher { background: #2d1f2d80; color: var(--accent-purple); border: 1px solid #bc8cff40; }
+
+    /* API table */
+    .api-table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+    .api-table th {
+      text-align: left;
+      padding: 6px 8px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text3);
+      border-bottom: 1px solid var(--border);
+    }
+    .api-table td {
+      padding: 5px 8px;
+      border-bottom: 1px solid var(--border2);
+      color: var(--text2);
+      vertical-align: top;
+    }
+    .api-table tr:last-child td { border-bottom: none; }
+    .method {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px;
+      font-weight: 700;
+      padding: 2px 5px;
+      border-radius: 3px;
+    }
+    .m-get    { background: #0d203540; color: #58a6ff; }
+    .m-post   { background: #0d20108060; color: #3fb950; }
+    .m-patch  { background: #2d230040; color: #d29922; }
+    .m-delete { background: #2d100d40; color: #f85149; }
+    .endpoint { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: var(--text); }
+
+    /* ─── RELATIONSHIP SUMMARY ────────────────────────────────── */
+    .rel-table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+    .rel-table th {
+      text-align: left; padding: 6px 8px;
+      font-size: 10px; text-transform: uppercase;
+      letter-spacing: 1px; color: var(--text3);
+      border-bottom: 1px solid var(--border);
+    }
+    .rel-table td {
+      padding: 6px 8px;
+      border-bottom: 1px solid var(--border2);
+      vertical-align: middle;
+    }
+    .rel-table tr:last-child td { border-bottom: none; }
+    .rel-entity { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; }
+    .rel-entity.blue   { color: var(--accent-users); }
+    .rel-entity.green  { color: var(--accent-del); }
+    .rel-entity.orange { color: var(--accent-hist); }
+    .rel-entity.purple { color: var(--accent-pay); }
+    .rel-card { font-size: 14px; text-align: center; }
+    .rel-note { font-size: 10.5px; color: var(--text3); }
+
+    /* ─── CROW'S FOOT SVG ─────────────────────────────────────── */
+    .relations-svg-container {
+      width: 100%;
+      height: 100px;
+      margin-bottom: -10px;
+    }
+
+    /* ─── FOOTER ──────────────────────────────────────────────── */
+    .page-footer {
+      margin-top: 40px;
+      padding: 20px 0;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .footer-left { font-size: 11px; color: var(--text3); }
+    .footer-right {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      font-size: 11px;
+      color: var(--text3);
+    }
+    .footer-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent-green); }
+  </style>
+</head>
+<body>
+
+<!-- ════════ PAGE HEADER ════════ -->
+<header class="page-header">
+  <div class="header-left">
+    <div class="logo-badge">REFLEX</div>
+    <div>
+      <div class="doc-title">Entity Relationship Diagram</div>
+      <div class="doc-subtitle">Reflex Delivery Management System — Data Model</div>
+    </div>
+  </div>
+  <div class="header-meta">
+    <span class="meta-badge version">v1.0.0</span>
+    <span class="meta-badge date">2026-09-02</span>
+    <span class="meta-badge">Storage: MySQL / JSON</span>
+    <span class="meta-badge">Notation: Crow's Foot</span>
+  </div>
+</header>
+
+<!-- ════════ BODY ════════ -->
+<div class="page-body">
+
+  <!-- ERD ENTITIES -->
+  <div class="section-label">Schema — Entities &amp; Attributes</div>
+
+  <div class="erd-canvas">
+
+    <!-- SVG relationship lines rendered BEHIND entities -->
+    <svg class="erd-svg" id="relSvg" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="crow-many" markerWidth="12" markerHeight="10" refX="11" refY="5" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="none" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M2,0 L2,10" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        </marker>
+        <marker id="crow-one" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+          <path d="M5,0 L5,10" fill="none" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M3,0 L3,10" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        </marker>
+        <marker id="crow-one-r" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto-start-reverse">
+          <path d="M5,0 L5,10" fill="none" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M7,0 L7,10" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        </marker>
+        <marker id="crow-many-r" markerWidth="12" markerHeight="10" refX="1" refY="5" orient="auto-start-reverse">
+          <path d="M12,0 L2,5 L12,10" fill="none" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M10,0 L10,10" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        </marker>
+      </defs>
+    </svg>
+
+    <div class="entities-grid" id="entityGrid">
+
+      <!-- ═══ ENTITY: USERS ═══ -->
+      <div class="entity users" id="e-users">
+        <div class="entity-header">
+          <span class="entity-icon">👤</span>
+          <span class="entity-name">users</span>
+          <span class="entity-table-tag">TABLE</span>
+        </div>
+        <div class="attributes">
+          <!-- PK -->
+          <div class="attr-row pk">
+            <span class="attr-icon icon-pk">PK</span>
+            <span class="attr-name">id</span>
+            <div class="attr-right">
+              <span class="attr-type">VARCHAR(20)</span>
+              <div class="attr-constraints">
+                <span class="constraint pk-c">PK</span>
+                <span class="constraint nn-c">NN</span>
+              </div>
+            </div>
+          </div>
+          <!-- Attrs -->
+          <div class="attr-row">
+            <span class="attr-icon icon-nn">—</span>
+            <span class="attr-name">name</span>
+            <div class="attr-right">
+              <span class="attr-type">VARCHAR(100)</span>
+              <div class="attr-constraints">
+                <span class="constraint nn-c">NN</span>
+              </div>
+            </div>
+          </div>
+          <div class="attr-row">
+            <span class="attr-icon icon-nn">—</span>
+            <span class="attr-name">role</span>
+            <div class="attr-right">
+              <span class="attr-type">ENUM</span>
+              <div class="attr-constraints">
+                <span class="constraint en-c">ENUM</span>
+                <span class="constraint nn-c">NN</span>
+              </div>
+            </div>
+          </div>
+          <div class="attr-row">
+            <span class="attr-icon icon-nn">—</span>
+            <span class="attr-name">email</span>
+            <div class="attr-right">
+              <span class="attr-type">VARCHAR(150)</span>
+              <div class="attr-constraints">
+                <span class="constraint nn-c">NN</span>
+                <span class="constraint uq-c">UQ</span>
+              </div>
+            </div>
+          </div>
+          <div class="attr-row">
+            <span class="attr-icon icon-nn">—</span>
+            <span class="attr-name">password</span>
+            <div class="attr-right">
+              <span class="attr-type">VARCHAR(255)</span>
+              <div class="attr-constraints">
+                <span class="constraint nn-c">NN</span>
+              </div>
+            </div>
+          </div>
+          <div class="attr-row">
+            <span class="attr-icon icon-nn">—</span>
+            <span class="attr-name">phone</span>
+            <div class="attr-right">
+              <span class="attr-type">VARCHAR(20)</span>
+              <div class="attr-constraints">
+                <span class="constraint nn-c">NN</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="attr-section-label">Roles: retailer · dispatcher · rider</div>
+        </div>
+      </div>
+
+      <!-- ═══ ENTITY: DELIVERIES ═══ -->
+      <div class="entity del" id="e-del">
+        <div class="entity-header">
+          <span class="entity-icon">📦</span>
+          <span class="entity-name">deliveries</span>
+          <span class="entity-table-tag">TABLE</span>
+        </div>
+        <div class="attributes">
+          <!-- PK -->
+          <div class="attr-row pk">
+            <span class="attr-icon icon-pk">PK</span>
+            <span class="attr-name">id</span>
+            <div class="attr-right">
+              <span class="attr-type">VARCHAR(20)</span>
+              <div class="attr-constraints">
+                <span class="constraint pk-c">PK</span>
+                <span class="constraint nn-c">NN</span>
+              </div>
+            </div>
+          </div>
+          <!-- FK1 -->
+          <div class="attr-row fk">
+            <span class="attr-icon icon-fk">FK</span>
+            <span class="attr-name">retailerId</span>
+            <div class="attr-right">
+              <span class="attr-type">VARCHAR(20)</span>
+              <div class="attr-constraints">
+                <span class="constraint fk-c">FK</span>
+                <span class="constraint nn-c">NN</span>
+              </div>
+            </div>
+          </div>
+          <!-- FK2 -->
+          <div class="attr-row fk">
+            <span class="attr-icon icon-fk">FK</span>
+            <span class="attr-name">riderId</span>
+            <div class="attr-right">
+              <span class="attr-type">VARCHAR(20)</span>
+              <div class="attr-constraints">
+                <span class="constraint fk-c">FK</span>
+                <span class="constraint def-c">NULL</span>
+              </div>
+            </div>
+          </div>
+          <!-- Attrs -->
+          <div class="attr-row">
+            <span class="attr-icon icon-nn">—</span>
+            <span class="attr-name">customerName</span>
+            <div class="attr-right">
+              <span class="attr-type">VARCHAR(100)</span>
+              <div class="attr-constraints"><span class="constraint nn-c">NN</span></div>
+            </div>
+          </div>
+          <div class="attr-row">
+            <span class="attr-icon icon-nn">—</span>
+            <span class="attr-name">customerPhone</span>
+            <div class="attr-right">
+              <span class="attr-type">VARCHAR(20)</span>
+              <div class="attr-constraints"><span class="constraint nn-c">NN</span></div>
+            </div>
+          </div>
+          <div class="attr-row">
+            <span class="attr-icon icon-nn">—</span>
+            <span class="attr-name">address</span>
+            <div class="attr-right">
+              <span class="attr-type">VARCHAR(255)</span>
+              <div class="attr-constraints"><span class="constraint nn-c">NN</span></div>
+            </div>
+          </div>
+          <div class="attr-row">
+            <span class="attr-icon icon-nn">—</span>
+            <span class="attr-name">item</span>
+            <div class="attr-right">
+              <span class="attr-type">VARCHAR(255)</span>
+              <div class="attr-constraints"><span class="constraint nn-c">NN</span></div>
+            </div>
+          </div>
+          <div class="attr-row">
+            <span class="attr-icon icon-nn">—</span>
+            <span class="attr-name">status</span>
+            <div class="attr-right">
+              <span class="attr-type">VARCHAR(30)</span>
+              <div class="attr-constraints">
+                <span class="constraint nn-c">NN</span>
+                <span class="constraint def-c">'Open'</span>
+              </div>
+            </div>
+          </div>
+          <div class="attr-row">
+            <span class="attr-icon icon-nn">—</span>
+            <span class="attr-name">paymentStatus</span>
+            <div class="attr-right">
+              <span class="attr-type">VARCHAR(32)</span>
+              <div class="attr-constraints">
+                <span class="constraint def-c">'UNPAID'</span>
+              </div>
+            </div>
+          </div>
+          <div class="attr-row">
+            <span class="attr-icon icon-nn">—</span>
+            <span class="attr-name">mpesaRef</span>
+            <div class="attr-right">
+              <span class="attr-type">VARCHAR(64)</span>
+              <div class="attr-constraints">
+                <span class="constraint def-c">NULL</span>
+              </div>
+            </div>
+          </div>
+          <div class="attr-row">
+            <span class="attr-icon icon-nn">—</span>
+            <span class="attr-name">createdAt</span>
+            <div class="attr-right">
+              <span class="attr-type">DATETIME</span>
+              <div class="attr-constraints"><span class="constraint nn-c">NN</span></div>
+            </div>
+          </div>
+          <div class="attr-row">
+            <span class="attr-icon icon-nn">—</span>
+            <span class="attr-name">updatedAt</span>
+            <div class="attr-right">
+              <span class="attr-type">DATETIME</span>
+              <div class="attr-constraints"><span class="constraint nn-c">NN</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ ENTITY: DELIVERY_HISTORY ═══ -->
+      <div class="entity hist" id="e-hist">
+        <div class="entity-header">
+          <span class="entity-icon">📋</span>
+          <span class="entity-name">delivery_history</span>
+          <span class="entity-table-tag">TABLE</span>
+        </div>
+        <div class="attributes">
+          <!-- PK -->
+          <div class="attr-row pk">
+            <span class="attr-icon icon-pk">PK</span>
+            <span class="attr-name">id</span>
+            <div class="attr-right">
+              <span class="attr-type">INT UNSIGNED</span>
+              <div class="attr-constraints">
+                <span class="constraint pk-c">PK</span>
+                <span class="constraint ai-c">AI</span>
+                <span class="constraint nn-c">NN</span>
+              </div>
+            </div>
+          </div>
+          <!-- FK -->
+          <div class="attr-row fk">
+            <span class="attr-icon icon-fk">FK</span>
+            <span class="attr-name">deliveryId</span>
+            <div class="attr-right">
+              <span class="attr-type">VARCHAR(20)</span>
+              <div class="attr-constraints">
+                <span class="constraint fk-c">FK</span>
+                <span class="constraint nn-c">NN</span>
+              </div>
+            </div>
+          </div>
+          <!-- Attrs -->
+          <div class="attr-row">
+            <span class="attr-icon icon-nn">—</span>
+            <span class="attr-name">status</span>
+            <div class="attr-right">
+              <span class="attr-type">VARCHAR(30)</span>
+              <div class="attr-constraints"><span class="constraint nn-c">NN</span></div>
+            </div>
+          </div>
+          <div class="attr-row">
+            <span class="attr-icon icon-nn">—</span>
+            <span class="attr-name">at_time</span>
+            <div class="attr-right">
+              <span class="attr-type">DATETIME</span>
+              <div class="attr-constraints"><span class="constraint nn-c">NN</span></div>
+            </div>
+          </div>
+          <div class="attr-row">
+            <span class="attr-icon icon-nn">—</span>
+            <span class="attr-name">note</span>
+            <div class="attr-right">
+              <span class="attr-type">VARCHAR(255)</span>
+              <div class="attr-constraints">
+                <span class="constraint def-c">''</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="attr-section-label">Audit trail — one row per status change</div>
+        </div>
+      </div>
+
+      <!-- ═══ ENTITY: PAYMENTS ═══ -->
+      <div class="entity pay" id="e-pay">
+        <div class="entity-header">
+          <span class="entity-icon">💳</span>
+          <span class="entity-name">payments</span>
+          <span class="entity-table-tag">TABLE</span>
+        </div>
+        <div class="attributes">
+          <!-- PK -->
+          <div class="attr-row pk">
+            <span class="attr-icon icon-pk">PK</span>
+            <span class="attr-name">id</span>
+            <div class="attr-right">
+              <span class="attr-type">VARCHAR(64)</span>
+              <div class="attr-constraints">
+                <span class="constraint pk-c">PK</span>
+                <span class="constraint nn-c">NN</span>
+              </div>
+            </div>
+          </div>
+          <!-- FK1 -->
+          <div class="attr-row fk">
+            <span class="attr-icon icon-fk">FK</span>
+            <span class="attr-name">deliveryId</span>
+            <div class="attr-right">
+              <span class="attr-type">VARCHAR(64)</span>
+              <div class="attr-constraints">
+                <span class="constraint fk-c">FK</span>
+              </div>
+            </div>
+          </div>
+          <!-- FK2 -->
+          <div class="attr-row fk">
+            <span class="attr-icon icon-fk">FK</span>
+            <span class="attr-name">riderId</span>
+            <div class="attr-right">
+              <span class="attr-type">VARCHAR(64)</span>
+              <div class="attr-constraints">
+                <span class="constraint fk-c">FK</span>
+                <span class="constraint def-c">NULL</span>
+              </div>
+            </div>
+          </div>
+          <!-- Attrs -->
+          <div class="attr-row">
+            <span class="attr-icon icon-nn">—</span>
+            <span class="attr-name">phone</span>
+            <div class="attr-right">
+              <span class="attr-type">VARCHAR(32)</span>
+            </div>
+          </div>
+          <div class="attr-row">
+            <span class="attr-icon icon-nn">—</span>
+            <span class="attr-name">amount</span>
+            <div class="attr-right">
+              <span class="attr-type">DECIMAL(10,2)</span>
+            </div>
+          </div>
+          <div class="attr-row">
+            <span class="attr-icon icon-nn">—</span>
+            <span class="attr-name">status</span>
+            <div class="attr-right">
+              <span class="attr-type">VARCHAR(32)</span>
+              <div class="attr-constraints">
+                <span class="constraint en-c">ENUM</span>
+              </div>
+            </div>
+          </div>
+          <div class="attr-row">
+            <span class="attr-icon icon-nn">—</span>
+            <span class="attr-name">checkoutRequestId</span>
+            <div class="attr-right">
+              <span class="attr-type">VARCHAR(128)</span>
+            </div>
+          </div>
+          <div class="attr-row">
+            <span class="attr-icon icon-nn">—</span>
+            <span class="attr-name">mpesaRef</span>
+            <div class="attr-right">
+              <span class="attr-type">VARCHAR(64)</span>
+              <div class="attr-constraints">
+                <span class="constraint def-c">NULL</span>
+              </div>
+            </div>
+          </div>
+          <div class="attr-row">
+            <span class="attr-icon icon-nn">—</span>
+            <span class="attr-name">paidAt</span>
+            <div class="attr-right">
+              <span class="attr-type">VARCHAR(64)</span>
+              <div class="attr-constraints">
+                <span class="constraint def-c">NULL</span>
+              </div>
+            </div>
+          </div>
+          <div class="attr-row">
+            <span class="attr-icon icon-nn">—</span>
+            <span class="attr-name">createdAt</span>
+            <div class="attr-right">
+              <span class="attr-type">VARCHAR(64)</span>
+            </div>
+          </div>
+
+          <div class="attr-section-label">Status: PENDING · PAID · FAILED</div>
+        </div>
+      </div>
+
+    </div><!-- /entities-grid -->
+  </div><!-- /erd-canvas -->
+
+  <!-- ════════ BOTTOM PANELS ════════ -->
+  <div class="bottom-panels">
+
+    <!-- LEGEND + RELATIONSHIPS -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-icon">🔗</span>
+        <span class="panel-title">Relationships</span>
+      </div>
+      <div class="panel-body">
+        <table class="rel-table">
+          <thead>
+            <tr>
+              <th>From</th>
+              <th style="text-align:center">Card.</th>
+              <th>To</th>
+              <th>Key</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="rel-entity blue">users</span></td>
+              <td class="rel-card" title="One user can own many deliveries as retailer">1 ➜ N</td>
+              <td><span class="rel-entity green">deliveries</span></td>
+              <td style="font-family:monospace;font-size:10px;color:var(--text3)">retailerId</td>
+            </tr>
+            <tr>
+              <td><span class="rel-entity blue">users</span></td>
+              <td class="rel-card" title="One rider can handle many deliveries">1 ➜ N</td>
+              <td><span class="rel-entity green">deliveries</span></td>
+              <td style="font-family:monospace;font-size:10px;color:var(--text3)">riderId</td>
+            </tr>
+            <tr>
+              <td><span class="rel-entity green">deliveries</span></td>
+              <td class="rel-card" title="Each delivery has many audit history entries">1 ➜ N</td>
+              <td><span class="rel-entity orange">delivery_history</span></td>
+              <td style="font-family:monospace;font-size:10px;color:var(--text3)">deliveryId</td>
+            </tr>
+            <tr>
+              <td><span class="rel-entity green">deliveries</span></td>
+              <td class="rel-card" title="Each delivery can have multiple payment attempts">1 ➜ N</td>
+              <td><span class="rel-entity purple">payments</span></td>
+              <td style="font-family:monospace;font-size:10px;color:var(--text3)">deliveryId</td>
+            </tr>
+            <tr>
+              <td><span class="rel-entity blue">users</span></td>
+              <td class="rel-card" title="A rider can be referenced in payments">1 ➜ N</td>
+              <td><span class="rel-entity purple">payments</span></td>
+              <td style="font-family:monospace;font-size:10px;color:var(--text3)">riderId</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div style="margin-top:16px; border-top:1px solid var(--border); padding-top:14px;">
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text3);margin-bottom:10px;font-weight:600;">Constraint Legend</div>
+          <div class="legend-item">
+            <div class="legend-swatch" style="background:#7c5c0030;border:1px solid #fbbf2440;color:#fbbf24;">PK</div>
+            <span class="legend-desc">Primary Key</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-swatch" style="background:#1e3a5f30;border:1px solid #58a6ff40;color:#58a6ff;">FK</div>
+            <span class="legend-desc">Foreign Key — references another table</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-swatch" style="background:#1c2333;border:1px solid var(--border);color:var(--text3);">NN</div>
+            <span class="legend-desc">NOT NULL — required value</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-swatch" style="background:#2d1f2d30;border:1px solid #bc8cff40;color:#bc8cff;">UQ</div>
+            <span class="legend-desc">UNIQUE — no duplicates allowed</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-swatch" style="background:#1a2d1a30;border:1px solid #3fb95040;color:#3fb950;">AI</div>
+            <span class="legend-desc">AUTO_INCREMENT — auto-generated</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-swatch" style="background:#2d200030;border:1px solid #ffa65740;color:#ffa657;">EN</div>
+            <span class="legend-desc">ENUM — predefined set of values</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATUS LIFECYCLE -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-icon">🔄</span>
+        <span class="panel-title">Delivery Status Lifecycle</span>
+      </div>
+      <div class="panel-body">
+        <div class="status-flow">
+
+          <div class="status-step">
+            <div class="status-step-left">
+              <div class="status-dot" style="background:#58a6ff;box-shadow:0 0 6px #58a6ff80;"></div>
+              <div class="status-line"></div>
+            </div>
+            <div class="status-info">
+              <div class="status-name">Open</div>
+              <div class="status-note">Delivery created, no rider assigned</div>
+              <span class="status-actor actor-retailer">Retailer</span>
+            </div>
+          </div>
+
+          <div class="status-step">
+            <div class="status-step-left">
+              <div class="status-dot" style="background:#d29922;box-shadow:0 0 6px #d2992280;"></div>
+              <div class="status-line"></div>
+            </div>
+            <div class="status-info">
+              <div class="status-name">Claimed</div>
+              <div class="status-note">Rider claimed it, awaiting dispatcher approval</div>
+              <span class="status-actor actor-rider">Rider</span>
+            </div>
+          </div>
+
+          <div class="status-step">
+            <div class="status-step-left">
+              <div class="status-dot" style="background:#bc8cff;box-shadow:0 0 6px #bc8cff80;"></div>
+              <div class="status-line"></div>
+            </div>
+            <div class="status-info">
+              <div class="status-name">Assigned</div>
+              <div class="status-note">Dispatcher confirmed rider, payment required</div>
+              <span class="status-actor actor-dispatcher">Dispatcher</span>
+            </div>
+          </div>
+
+          <div class="status-step">
+            <div class="status-step-left">
+              <div class="status-dot" style="background:#ffa657;box-shadow:0 0 6px #ffa65780;"></div>
+              <div class="status-line"></div>
+            </div>
+            <div class="status-info">
+              <div class="status-name">Picked Up</div>
+              <div class="status-note">Rider collected the package</div>
+              <span class="status-actor actor-rider">Rider</span>
+            </div>
+          </div>
+
+          <div class="status-step">
+            <div class="status-step-left">
+              <div class="status-dot" style="background:#ff7b72;box-shadow:0 0 6px #ff7b7280;"></div>
+              <div class="status-line"></div>
+            </div>
+            <div class="status-info">
+              <div class="status-name">Out for Delivery</div>
+              <div class="status-note">Package in transit to customer</div>
+              <span class="status-actor actor-rider">Rider</span>
+            </div>
+          </div>
+
+          <div class="status-step">
+            <div class="status-step-left">
+              <div class="status-dot" style="background:#f5a623;box-shadow:0 0 6px #f5a62380;"></div>
+              <div class="status-line"></div>
+            </div>
+            <div class="status-info">
+              <div class="status-name">Pending Confirmation</div>
+              <div class="status-note">Rider marked delivered, waiting owner confirm</div>
+              <span class="status-actor actor-rider">Rider</span>
+            </div>
+          </div>
+
+          <div class="status-step">
+            <div class="status-step-left">
+              <div class="status-dot" style="background:#3fb950;box-shadow:0 0 6px #3fb95080;"></div>
+              <div class="status-line" style="background:transparent;"></div>
+            </div>
+            <div class="status-info">
+              <div class="status-name">Delivered ✓</div>
+              <div class="status-note">Business owner confirmed receipt</div>
+              <span class="status-actor actor-retailer">Retailer</span>
+            </div>
+          </div>
+
+        </div>
+
+        <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text3);margin-bottom:8px;font-weight:600;">Terminal States</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <span class="status-actor" style="background:#1a2d1a80;color:#3fb950;border:1px solid #3fb95040;font-size:10px;padding:3px 8px;">Delivered</span>
+            <span class="status-actor" style="background:#2d100d80;color:#f85149;border:1px solid #f8514940;font-size:10px;padding:3px 8px;">Failed</span>
+            <span class="status-actor" style="background:#1c233380;color:var(--text3);border:1px solid var(--border);font-size:10px;padding:3px 8px;">Cancelled</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- API ENDPOINTS -->
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-icon">🌐</span>
+        <span class="panel-title">REST API Surface — Mapped to Entities</span>
+      </div>
+      <div class="panel-body">
+        <table class="api-table">
+          <thead>
+            <tr>
+              <th>Method</th>
+              <th>Endpoint</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="method m-post">POST</span></td>
+              <td><span class="endpoint">/api/login</span></td>
+              <td>Authenticate user (users)</td>
+            </tr>
+            <tr>
+              <td><span class="method m-get">GET</span></td>
+              <td><span class="endpoint">/api/deliveries</span></td>
+              <td>List deliveries (role-filtered)</td>
+            </tr>
+            <tr>
+              <td><span class="method m-get">GET</span></td>
+              <td><span class="endpoint">/api/deliveries/:id</span></td>
+              <td>Single delivery + history</td>
+            </tr>
+            <tr>
+              <td><span class="method m-post">POST</span></td>
+              <td><span class="endpoint">/api/deliveries</span></td>
+              <td>Create delivery (retailer)</td>
+            </tr>
+            <tr>
+              <td><span class="method m-delete">DEL</span></td>
+              <td><span class="endpoint">/api/deliveries/:id</span></td>
+              <td>Cancel / delete delivery</td>
+            </tr>
+            <tr>
+              <td><span class="method m-patch">PATCH</span></td>
+              <td><span class="endpoint">/api/deliveries/:id/accept</span></td>
+              <td>Rider claims delivery → Claimed</td>
+            </tr>
+            <tr>
+              <td><span class="method m-patch">PATCH</span></td>
+              <td><span class="endpoint">/api/deliveries/:id/assign</span></td>
+              <td>Dispatcher assigns → Assigned</td>
+            </tr>
+            <tr>
+              <td><span class="method m-patch">PATCH</span></td>
+              <td><span class="endpoint">/api/deliveries/:id/status</span></td>
+              <td>Advance delivery status</td>
+            </tr>
+            <tr>
+              <td><span class="method m-post">POST</span></td>
+              <td><span class="endpoint">/api/deliveries/:id/notify-owner</span></td>
+              <td>Send email notification</td>
+            </tr>
+            <tr>
+              <td><span class="method m-post">POST</span></td>
+              <td><span class="endpoint">/api/riders</span></td>
+              <td>Create rider account (dispatcher)</td>
+            </tr>
+            <tr>
+              <td><span class="method m-post">POST</span></td>
+              <td><span class="endpoint">/api/mpesa/stk-push</span></td>
+              <td>Initiate M-Pesa STK push</td>
+            </tr>
+            <tr>
+              <td><span class="method m-get">GET</span></td>
+              <td><span class="endpoint">/api/mpesa/status/:id</span></td>
+              <td>Poll payment status</td>
+            </tr>
+            <tr>
+              <td><span class="method m-post">POST</span></td>
+              <td><span class="endpoint">/api/mpesa/callback</span></td>
+              <td>Safaricom webhook → update payment</td>
+            </tr>
+            <tr>
+              <td><span class="method m-get">GET</span></td>
+              <td><span class="endpoint">/api/earnings/:riderId</span></td>
+              <td>Rider PAID earnings summary</td>
+            </tr>
+            <tr>
+              <td><span class="method m-get">GET</span></td>
+              <td><span class="endpoint">/api/health</span></td>
+              <td>Storage mode health check</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /bottom-panels -->
+
+  <!-- FOOTER -->
+  <div class="page-footer">
+    <div class="footer-left">
+      Reflex Delivery Management System · ERD v1.0 · Engine: InnoDB (MySQL) / JSON (Local Dev) · Charset: utf8mb4
+    </div>
+    <div class="footer-right">
+      <div class="footer-dot"></div>
+      Server running
+      <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent-green);">localhost:3000</span>
+    </div>
+  </div>
+
+</div><!-- /page-body -->
+
+<script>
+  // ── Draw crow's foot SVG lines between entity cards ──────────────────────
+  function drawRelationships() {
+    const svg = document.getElementById('relSvg');
+    const grid = document.getElementById('entityGrid');
+    if (!svg || !grid) return;
+
+    const gridRect = grid.getBoundingClientRect();
+
+    function getCardMid(id) {
+      const el = document.getElementById(id);
+      if (!el) return null;
+      const r = el.getBoundingClientRect();
+      return {
+        top:    r.top    - gridRect.top,
+        bottom: r.bottom - gridRect.top,
+        left:   r.left   - gridRect.left,
+        right:  r.right  - gridRect.left,
+        midX:   (r.left + r.right)  / 2 - gridRect.left,
+        midY:   (r.top  + r.bottom) / 2 - gridRect.top,
+      };
+    }
+
+    const users = getCardMid('e-users');
+    const del   = getCardMid('e-del');
+    const hist  = getCardMid('e-hist');
+    const pay   = getCardMid('e-pay');
+
+    if (!users || !del || !hist || !pay) return;
+
+    // Canvas height based on tallest card
+    const allCards = [users, del, hist, pay];
+    const canvasH = Math.max(...allCards.map(c => c.bottom)) + 40;
+    svg.setAttribute('viewBox', `0 0 ${gridRect.width} ${canvasH}`);
+    svg.style.height = canvasH + 'px';
+    document.querySelector('.erd-canvas').style.minHeight = canvasH + 'px';
+
+    const lines = [];
+
+    // Helper to create a path element
+    function makePath(d, color, dash = false) {
+      const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      p.setAttribute('d', d);
+      p.setAttribute('fill', 'none');
+      p.setAttribute('stroke', color);
+      p.setAttribute('stroke-width', '1.5');
+      p.setAttribute('opacity', '0.55');
+      if (dash) p.setAttribute('stroke-dasharray', '5,4');
+      return p;
+    }
+
+    function makeCircle(cx, cy, color) {
+      const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      c.setAttribute('cx', cx); c.setAttribute('cy', cy);
+      c.setAttribute('r', '3');
+      c.setAttribute('fill', color);
+      c.setAttribute('opacity', '0.7');
+      return c;
+    }
+
+    // ── users → deliveries (retailerId) ────────────────────────────────────
+    {
+      const x1 = users.right;
+      const y1 = users.top + 50;
+      const x2 = del.left;
+      const y2 = del.top + 70;
+      const cx = (x1 + x2) / 2;
+      const d = `M ${x1} ${y1} C ${cx} ${y1} ${cx} ${y2} ${x2} ${y2}`;
+      svg.appendChild(makePath(d, '#58a6ff'));
+      svg.appendChild(makeCircle(x1, y1, '#58a6ff'));
+    }
+
+    // ── users → deliveries (riderId) ────────────────────────────────────────
+    {
+      const x1 = users.right;
+      const y1 = users.top + 80;
+      const x2 = del.left;
+      const y2 = del.top + 110;
+      const cx = (x1 + x2) / 2;
+      const d = `M ${x1} ${y1} C ${cx} ${y1} ${cx} ${y2} ${x2} ${y2}`;
+      svg.appendChild(makePath(d, '#58a6ff', true));
+      svg.appendChild(makeCircle(x1, y1, '#58a6ff'));
+    }
+
+    // ── deliveries → delivery_history ───────────────────────────────────────
+    {
+      const x1 = del.right;
+      const y1 = del.midY;
+      const x2 = hist.left;
+      const y2 = hist.top + 60;
+      const cx = (x1 + x2) / 2;
+      const d = `M ${x1} ${y1} C ${cx} ${y1} ${cx} ${y2} ${x2} ${y2}`;
+      svg.appendChild(makePath(d, '#ffa657'));
+      svg.appendChild(makeCircle(x1, y1, '#ffa657'));
+    }
+
+    // ── deliveries → payments ───────────────────────────────────────────────
+    {
+      const x1 = del.right + (hist.left - del.right) * 0.5;
+      const y1 = del.bottom + 20;
+      const x2 = pay.left;
+      const y2 = pay.top + 60;
+      // route under then across
+      const d = `M ${del.right} ${del.bottom - 20} Q ${del.right + 20} ${del.bottom + 30} ${pay.left} ${y2}`;
+      svg.appendChild(makePath(d, '#bc8cff'));
+      svg.appendChild(makeCircle(del.right, del.bottom - 20, '#bc8cff'));
+    }
+
+    // ── users → payments (riderId) ──────────────────────────────────────────
+    {
+      const x1 = users.midX;
+      const y1 = users.bottom;
+      const x2 = pay.midX;
+      const y2 = pay.bottom + 16;
+      // arc below all cards
+      const d = `M ${x1} ${y1} C ${x1} ${y1 + 35} ${x2} ${y2 + 35} ${x2} ${pay.bottom}`;
+      svg.appendChild(makePath(d, '#bc8cff', true));
+      svg.appendChild(makeCircle(x1, y1, '#bc8cff'));
+    }
+
+    // ── hist → pay link label line ───────────────────────────────────────────
+    {
+      const x1 = hist.right;
+      const y1 = hist.midY;
+      const x2 = pay.left;
+      const y2 = pay.midY;
+      const d = `M ${x1} ${y1} C ${(x1+x2)/2} ${y1} ${(x1+x2)/2} ${y2} ${x2} ${y2}`;
+      svg.appendChild(makePath(d, '#30363d'));
+    }
+  }
+
+  window.addEventListener('load', () => {
+    setTimeout(drawRelationships, 150);
+  });
+  window.addEventListener('resize', () => {
+    const svg = document.getElementById('relSvg');
+    while (svg.firstChild && svg.firstChild.tagName !== 'defs') {
+      svg.removeChild(svg.firstChild);
+    }
+    // clear non-defs children
+    const children = Array.from(svg.children);
+    children.forEach(c => { if (c.tagName !== 'defs') svg.removeChild(c); });
+    setTimeout(drawRelationships, 100);
+  });
+</script>
+
+</body>
+</html>

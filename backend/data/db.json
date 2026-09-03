@@ -1,0 +1,516 @@
+{
+  "users": [
+    {
+      "id": "u1",
+      "name": "Jane Retailer",
+      "role": "retailer",
+      "email": "jane@gmail.com",
+      "password": "123456",
+      "phone": "0711000001"
+    },
+    {
+      "id": "u2",
+      "name": "David Dispatcher",
+      "role": "dispatcher",
+      "email": "dispatcher@reflex.com",
+      "password": "123456",
+      "phone": "0711000002"
+    },
+    {
+      "id": "u3",
+      "name": "Brian Rider",
+      "role": "rider",
+      "email": "brian@gmail.com",
+      "password": "123456",
+      "phone": "0711000003"
+    },
+    {
+      "id": "u4",
+      "name": "Mercy Rider",
+      "role": "rider",
+      "email": "mercy@gmail.com",
+      "password": "123456",
+      "phone": "0711000004"
+    }
+  ],
+  "deliveries": [
+    {
+      "id": "DEL-1001",
+      "retailerId": "u1",
+      "customerName": "Mary Wanjiku",
+      "customerPhone": "0712345678",
+      "address": "Kitengela, Kajiado",
+      "item": "Phone charger",
+      "riderId": "u3",
+      "status": "Delivered",
+      "paymentStatus": "PAID",
+      "mpesaRef": "QJH782K91P",
+      "deliveryOtp": "482910",
+      "podToken": "POD-DEL-1001-9a7c3e",
+      "verificationMethod": "OTP",
+      "verifiedAt": "2026-09-02T20:13:02.443Z",
+      "createdAt": "2026-08-30T08:30:00+03:00",
+      "updatedAt": "2026-09-02T20:13:02.443Z",
+      "history": [
+        {
+          "status": "Open",
+          "at": "2026-08-30T08:30:00+03:00",
+          "note": "Delivery created by business owner"
+        },
+        {
+          "status": "Assigned",
+          "at": "2026-08-30T09:00:00+03:00",
+          "note": "Accepted by Brian Rider"
+        },
+        {
+          "status": "Picked Up",
+          "at": "2026-08-30T09:15:00+03:00",
+          "note": "Status updated by rider"
+        },
+        {
+          "status": "Out for Delivery",
+          "at": "2026-08-30T09:30:00+03:00",
+          "note": "Status updated by rider"
+        },
+        {
+          "status": "Delivered",
+          "at": "2026-09-02T20:13:02.443Z",
+          "note": "Delivered & verified via Customer OTP"
+        }
+      ]
+    },
+    {
+      "id": "DEL-1002",
+      "retailerId": "u1",
+      "customerName": "Peter Otieno",
+      "customerPhone": "0723456789",
+      "address": "Athi River",
+      "item": "Bluetooth speaker",
+      "riderId": "u4",
+      "status": "Picked Up",
+      "paymentStatus": "PAID",
+      "mpesaRef": "QJH782K92P",
+      "deliveryOtp": "739201",
+      "podToken": "POD-DEL-1002-1b8d5f",
+      "verificationMethod": null,
+      "verifiedAt": null,
+      "createdAt": "2026-08-30T09:15:00+03:00",
+      "updatedAt": "2026-08-31T05:09:40.495Z",
+      "history": [
+        {
+          "status": "Open",
+          "at": "2026-08-30T09:15:00+03:00",
+          "note": "Delivery created by business owner"
+        },
+        {
+          "status": "Assigned",
+          "at": "2026-08-31T04:28:41.791Z",
+          "note": "Accepted by Mercy Rider"
+        },
+        {
+          "status": "Picked Up",
+          "at": "2026-08-31T05:09:40.495Z",
+          "note": "Status updated by rider"
+        }
+      ]
+    },
+    {
+      "id": "DEL-1003",
+      "retailerId": "u1",
+      "customerName": "Jacob Muema",
+      "customerPhone": "0740491425",
+      "address": "TAJMIL, Imara Daima, Imara Daima ward, Kenya",
+      "item": "MILK",
+      "riderId": "u3",
+      "status": "Delivered",
+      "paymentStatus": "PAID",
+      "mpesaRef": "QJH782K93P",
+      "deliveryOtp": "614920",
+      "podToken": "POD-DEL-1003-4c9e7a",
+      "verificationMethod": "CUSTOMER_QR_SCAN",
+      "verifiedAt": "2026-09-03T19:47:41.466Z",
+      "createdAt": "2026-08-31T13:38:37.525Z",
+      "updatedAt": "2026-09-03T19:47:41.466Z",
+      "history": [
+        {
+          "status": "Open",
+          "at": "2026-08-31T13:38:37.525Z",
+          "note": "Delivery created by business owner"
+        },
+        {
+          "status": "Claimed",
+          "at": "2026-09-02T11:55:55.052Z",
+          "note": "Claimed by Brian Rider (Pending Dispatcher Approval)"
+        },
+        {
+          "status": "Assigned",
+          "at": "2026-09-03T18:58:19.209Z",
+          "note": "Assigned to Brian Rider"
+        },
+        {
+          "status": "Picked Up",
+          "at": "2026-09-03T18:58:41.668Z",
+          "note": "Status updated by rider"
+        },
+        {
+          "status": "Out for Delivery",
+          "at": "2026-09-03T18:58:43.899Z",
+          "note": "Status updated by rider"
+        },
+        {
+          "status": "Delivered",
+          "at": "2026-09-03T19:47:41.466Z",
+          "note": "Delivery confirmed received by customer (Jacob Muema) via QR Scan ★5/5"
+        }
+      ]
+    },
+    {
+      "id": "DEL-1004",
+      "retailerId": "u1",
+      "customerName": "Test Customer",
+      "customerPhone": "0711223344",
+      "address": "Westlands, Nairobi, Kenya",
+      "item": "Test Package",
+      "riderId": "u3",
+      "status": "Delivered",
+      "paymentStatus": "PAID",
+      "mpesaRef": null,
+      "deliveryOtp": "483417",
+      "podToken": "POD-DEL-1004-0ccec4",
+      "verificationMethod": "OTP",
+      "verifiedAt": "2026-09-02T19:04:16.983Z",
+      "createdAt": "2026-09-02T19:04:16.959Z",
+      "updatedAt": "2026-09-02T19:04:16.983Z",
+      "history": [
+        {
+          "status": "Open",
+          "at": "2026-09-02T19:04:16.959Z",
+          "note": "Delivery created by business owner"
+        },
+        {
+          "status": "Delivered",
+          "at": "2026-09-02T19:04:16.983Z",
+          "note": "Delivered & verified via Customer OTP"
+        }
+      ]
+    },
+    {
+      "id": "DEL-1005",
+      "retailerId": "u1",
+      "customerName": "QR Test Customer",
+      "customerPhone": "0711998877",
+      "address": "Kilimani, Nairobi, Kenya",
+      "item": "QR Test Item",
+      "riderId": "u3",
+      "status": "Claimed",
+      "paymentStatus": "UNPAID",
+      "mpesaRef": null,
+      "deliveryOtp": "428159",
+      "podToken": "POD-DEL-1005-ea83f1",
+      "verificationMethod": null,
+      "verifiedAt": null,
+      "createdAt": "2026-09-02T19:04:16.991Z",
+      "updatedAt": "2026-09-02T20:07:44.771Z",
+      "history": [
+        {
+          "status": "Open",
+          "at": "2026-09-02T19:04:16.991Z",
+          "note": "Delivery created by business owner"
+        },
+        {
+          "status": "Claimed",
+          "at": "2026-09-02T20:07:44.771Z",
+          "note": "Claimed by Brian Rider (Pending Dispatcher Approval)"
+        }
+      ]
+    },
+    {
+      "id": "DEL-1006",
+      "retailerId": "u1",
+      "customerName": "Brian",
+      "customerPhone": "0114130734",
+      "address": "Gachie, Ruaka, Ruaka, Kenya",
+      "item": "JBL",
+      "riderId": "u3",
+      "status": "Delivered",
+      "paymentStatus": "PAID",
+      "mpesaRef": "UI21N5KIQN",
+      "deliveryOtp": "382114",
+      "podToken": "POD-DEL-1006-b3c269",
+      "verificationMethod": "OTP",
+      "verifiedAt": "2026-09-02T20:43:26.839Z",
+      "createdAt": "2026-09-02T19:30:13.643Z",
+      "updatedAt": "2026-09-02T20:43:26.839Z",
+      "history": [
+        {
+          "status": "Open",
+          "at": "2026-09-02T19:30:13.643Z",
+          "note": "Delivery created by business owner"
+        },
+        {
+          "status": "Claimed",
+          "at": "2026-09-02T19:36:38.724Z",
+          "note": "Claimed by Brian Rider (Pending Dispatcher Approval)"
+        },
+        {
+          "status": "Assigned",
+          "at": "2026-09-02T20:42:14.552Z",
+          "note": "Assigned to Brian Rider"
+        },
+        {
+          "status": "Picked Up",
+          "at": "2026-09-02T20:42:40.333Z",
+          "note": "Status updated by rider"
+        },
+        {
+          "status": "Out for Delivery",
+          "at": "2026-09-02T20:42:42.352Z",
+          "note": "Status updated by rider"
+        },
+        {
+          "status": "Delivered",
+          "at": "2026-09-02T20:43:26.839Z",
+          "note": "Delivered & verified via Customer OTP"
+        }
+      ]
+    },
+    {
+      "id": "DEL-1007",
+      "retailerId": "u1",
+      "customerName": "Payment Test",
+      "customerPhone": "0740491425",
+      "address": "Nairobi, Kenya",
+      "item": "M-Pesa STK Test",
+      "riderId": "u3",
+      "status": "Delivered",
+      "paymentStatus": "PAID",
+      "mpesaRef": "UI21N5KIQN",
+      "deliveryOtp": "598471",
+      "podToken": "POD-DEL-1007-584b7c",
+      "verificationMethod": "CUSTOMER_QR_SCAN",
+      "verifiedAt": "2026-09-03T02:40:10.791Z",
+      "createdAt": "2026-09-02T20:33:38.500Z",
+      "updatedAt": "2026-09-03T02:40:10.791Z",
+      "history": [
+        {
+          "status": "Open",
+          "at": "2026-09-02T20:33:38.500Z",
+          "note": "Delivery created by business owner"
+        },
+        {
+          "status": "Claimed",
+          "at": "2026-09-02T20:44:20.662Z",
+          "note": "Claimed by Brian Rider (Pending Dispatcher Approval)"
+        },
+        {
+          "status": "Assigned",
+          "at": "2026-09-03T02:37:41.562Z",
+          "note": "Assigned to Brian Rider"
+        },
+        {
+          "status": "Picked Up",
+          "at": "2026-09-03T02:38:55.516Z",
+          "note": "Status updated by rider"
+        },
+        {
+          "status": "Out for Delivery",
+          "at": "2026-09-03T02:38:59.127Z",
+          "note": "Status updated by rider"
+        },
+        {
+          "status": "Delivered",
+          "at": "2026-09-03T02:40:10.791Z",
+          "note": "Delivery confirmed received by customer (Payment Test) via QR Scan ★5/5"
+        }
+      ]
+    },
+    {
+      "id": "DEL-1008",
+      "retailerId": "u1",
+      "customerName": "James",
+      "customerPhone": "0712000000",
+      "address": "Spring Valley, Westlands, Nairobi, Kenya",
+      "item": "Hisense",
+      "riderId": "u3",
+      "status": "Delivered",
+      "paymentStatus": "PAID",
+      "mpesaRef": "SIMDJD905JM",
+      "deliveryOtp": "111491",
+      "podToken": "POD-DEL-1008-33f469",
+      "verificationMethod": "CUSTOMER_QR_SCAN",
+      "verifiedAt": "2026-09-03T19:57:03.274Z",
+      "createdAt": "2026-09-03T19:54:12.732Z",
+      "updatedAt": "2026-09-03T19:57:03.274Z",
+      "history": [
+        {
+          "status": "Open",
+          "at": "2026-09-03T19:54:12.732Z",
+          "note": "Delivery created by business owner"
+        },
+        {
+          "status": "Claimed",
+          "at": "2026-09-03T19:55:27.072Z",
+          "note": "Claimed by Brian Rider (Pending Dispatcher Approval)"
+        },
+        {
+          "status": "Assigned",
+          "at": "2026-09-03T19:55:56.049Z",
+          "note": "Assigned to Brian Rider"
+        },
+        {
+          "status": "Picked Up",
+          "at": "2026-09-03T19:56:20.247Z",
+          "note": "Status updated by rider"
+        },
+        {
+          "status": "Out for Delivery",
+          "at": "2026-09-03T19:56:23.431Z",
+          "note": "Status updated by rider"
+        },
+        {
+          "status": "Delivered",
+          "at": "2026-09-03T19:57:03.274Z",
+          "note": "Delivery confirmed received by customer (James) via QR Scan ★5/5"
+        }
+      ]
+    }
+  ],
+  "payments": [
+    {
+      "id": "PAY-1788353814103",
+      "deliveryId": "TEST-MPESA-001",
+      "riderId": "TEST-RIDER",
+      "phone": "0740491425",
+      "amount": 2,
+      "status": "PENDING",
+      "checkoutRequestId": "ws_CO_020920261558116740491425",
+      "createdAt": "2026-09-02T12:56:54.103Z"
+    },
+    {
+      "id": "PAY-1788353843523",
+      "deliveryId": "DEL-1003",
+      "riderId": "u3",
+      "phone": "0114130734",
+      "amount": 2,
+      "status": "PENDING",
+      "checkoutRequestId": "ws_CO_020920261558409114130734",
+      "createdAt": "2026-09-02T12:57:23.523Z"
+    },
+    {
+      "id": "PAY-1788377424482",
+      "deliveryId": "DEL-1006",
+      "riderId": null,
+      "phone": "0114130734",
+      "amount": 2,
+      "status": "PENDING",
+      "checkoutRequestId": "ws_CO_020920262231422114130734",
+      "createdAt": "2026-09-02T19:30:24.482Z"
+    },
+    {
+      "id": "PAY-1788377580861",
+      "deliveryId": "DEL-1006",
+      "riderId": null,
+      "phone": "0114130734",
+      "amount": 2,
+      "status": "PENDING",
+      "checkoutRequestId": "ws_CO_020920262234185114130734",
+      "createdAt": "2026-09-02T19:33:00.861Z"
+    },
+    {
+      "id": "PAY-1788377581708",
+      "deliveryId": "DEL-1006",
+      "riderId": null,
+      "phone": "0114130734",
+      "amount": 2,
+      "status": "PENDING",
+      "checkoutRequestId": "ws_CO_020920262234195114130734",
+      "createdAt": "2026-09-02T19:33:01.708Z"
+    },
+    {
+      "id": "PAY-1788380406195",
+      "deliveryId": "DEL-1006",
+      "riderId": null,
+      "phone": "0114130734",
+      "amount": 2,
+      "status": "PENDING",
+      "checkoutRequestId": "ws_CO_020920262321239114130734",
+      "createdAt": "2026-09-02T20:20:06.195Z"
+    },
+    {
+      "id": "PAY-1788381219806",
+      "deliveryId": "DEL-1007",
+      "riderId": null,
+      "phone": "0740491425",
+      "amount": 2,
+      "status": "PAID",
+      "checkoutRequestId": "ws_CO_020920262334576740491425",
+      "createdAt": "2026-09-02T20:33:39.806Z",
+      "mpesaRef": "UI21N5KIQN",
+      "paidAt": "20260902100620"
+    },
+    {
+      "id": "PAY-1788381297441",
+      "deliveryId": "DEL-1006",
+      "riderId": null,
+      "phone": "0114130734",
+      "amount": 2,
+      "status": "PENDING",
+      "checkoutRequestId": "ws_CO_020920262336152114130734",
+      "createdAt": "2026-09-02T20:34:57.442Z"
+    },
+    {
+      "id": "PAY-1788381701238",
+      "deliveryId": "DEL-1006",
+      "riderId": null,
+      "phone": "0114130734",
+      "amount": 2,
+      "status": "PAID",
+      "checkoutRequestId": "ws_CO_020920262342587114130734",
+      "createdAt": "2026-09-02T20:41:41.238Z",
+      "mpesaRef": "UI21N5KIQN",
+      "paidAt": "2026-09-02T07:14:35.704Z"
+    },
+    {
+      "id": "PAY-1788402897197",
+      "deliveryId": "DEL-1005",
+      "riderId": null,
+      "phone": "0711998877",
+      "amount": 2,
+      "status": "PENDING",
+      "checkoutRequestId": "ws_CO_030920260536149711998877",
+      "createdAt": "2026-09-03T02:34:57.198Z"
+    },
+    {
+      "id": "PAY-1788402922216",
+      "deliveryId": "DEL-1005",
+      "riderId": null,
+      "phone": "0114130734",
+      "amount": 2,
+      "status": "PENDING",
+      "checkoutRequestId": "ws_CO_030920260536400114130734",
+      "createdAt": "2026-09-03T02:35:22.216Z"
+    },
+    {
+      "id": "PAY-1788461810766",
+      "deliveryId": "DEL-1005",
+      "riderId": null,
+      "phone": "0114130734",
+      "amount": 2,
+      "status": "PENDING",
+      "checkoutRequestId": "ws_CO_030920262158092114130734",
+      "createdAt": "2026-09-03T18:56:50.766Z"
+    },
+    {
+      "id": "PAY-1788465270573",
+      "deliveryId": "DEL-1008",
+      "riderId": "u3",
+      "phone": "0114130734",
+      "amount": 2,
+      "status": "PAID",
+      "checkoutRequestId": "ws_CO_030920262255491114130734",
+      "createdAt": "2026-09-03T19:54:30.573Z",
+      "mpesaRef": "SIMDJD905JM",
+      "paidAt": "2026-09-03T19:54:31.499Z"
+    }
+  ]
+}
