@@ -1267,7 +1267,18 @@ async function openRiderQrModal(id){
     return;
   }
 
-  const confirmUrl = `${location.origin}${location.pathname}#confirm?id=${encodeURIComponent(d.id)}&token=${encodeURIComponent(d.podToken||'')}`;
+  // Determine reachable base origin for mobile phones scanning the QR code
+  let baseOrigin = location.origin;
+  if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+    try {
+      const netInfo = await api('/api/network-info');
+      if (netInfo && netInfo.lanUrl) {
+        baseOrigin = netInfo.lanUrl;
+      }
+    } catch(e) {}
+  }
+
+  const confirmUrl = `${baseOrigin}${location.pathname}#confirm?id=${encodeURIComponent(d.id)}&token=${encodeURIComponent(d.podToken||'')}`;
   let pollInterval = null;
 
   const modal = document.createElement('div');

@@ -1111,8 +1111,21 @@ app.post('/api/mpesa/simulate-success', async (req, res) => {
 });
 
 // ══════════════════════════════════════════════════════════════════════════
-//  HEALTH
+//  HEALTH & NETWORK INFO
 // ══════════════════════════════════════════════════════════════════════════
+const os = require('os');
+function getLanIp() {
+  const nets = os.networkInterfaces();
+  for (const name of Object.keys(nets)) {
+    for (const net of nets[name]) {
+      if (net.family === 'IPv4' && !net.internal) {
+        return net.address;
+      }
+    }
+  }
+  return 'localhost';
+}
+
 app.get('/api/health', async (req, res) => {
   if (useMySQL) {
     try { await db.query('SELECT 1'); res.json({ ok: true, storage: 'MySQL', host: process.env.DB_HOST }); }
@@ -1122,6 +1135,15 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
+app.get('/api/network-info', (req, res) => {
+  const lanIp = getLanIp();
+  res.json({
+    lanIp,
+    port: PORT,
+    lanUrl: `http://${lanIp}:${PORT}`
+  });
+});
+
 // ── SPA fallback ─────────────────────────────────────────────────────────
 app.get('*', (req, res) =>
   res.sendFile(path.join(__dirname, '..', 'frontend', 'index.html'))
@@ -1129,5 +1151,9 @@ app.get('*', (req, res) =>
 
 // ── Boot ──────────────────────────────────────────────────────────────────
 initStorage().then(() => {
-  app.listen(PORT, () => console.log(`🚀 Reflex running at http://localhost:${PORT} [${useMySQL ? 'MySQL' : 'JSON'}]`));
+  const lanIp = getLanIp();
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Reflex running locally at http://localhost:${PORT}`);
+    console.log(`📱 Network / Mobile URL: http://${lanIp}:${PORT} [${useMySQL ? 'MySQL' : 'JSON'}]`);
+  });
 });

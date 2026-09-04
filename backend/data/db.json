@@ -373,6 +373,51 @@
           "note": "Delivery confirmed received by customer (James) via QR Scan ★5/5"
         }
       ]
+    },
+    {
+      "id": "DEL-1009",
+      "retailerId": "u1",
+      "customerName": "Brian",
+      "customerPhone": "0712000000",
+      "address": "Moi Avenue, Westland, Nairobi, Kenya",
+      "item": "JBL",
+      "riderId": "u3",
+      "status": "Out for Delivery",
+      "paymentStatus": "PAID",
+      "mpesaRef": "UI21N5KPAW",
+      "deliveryOtp": "890727",
+      "podToken": "POD-DEL-1009-4ac396",
+      "verificationMethod": null,
+      "verifiedAt": null,
+      "createdAt": "2026-09-04T15:08:58.891Z",
+      "updatedAt": "2026-09-04T15:11:22.804Z",
+      "history": [
+        {
+          "status": "Open",
+          "at": "2026-09-04T15:08:58.891Z",
+          "note": "Delivery created by business owner"
+        },
+        {
+          "status": "Claimed",
+          "at": "2026-09-04T15:10:23.874Z",
+          "note": "Claimed by Brian Rider (Pending Dispatcher Approval)"
+        },
+        {
+          "status": "Assigned",
+          "at": "2026-09-04T15:10:53.623Z",
+          "note": "Assigned to Brian Rider"
+        },
+        {
+          "status": "Picked Up",
+          "at": "2026-09-04T15:11:20.944Z",
+          "note": "Status updated by rider"
+        },
+        {
+          "status": "Out for Delivery",
+          "at": "2026-09-04T15:11:22.804Z",
+          "note": "Status updated by rider"
+        }
+      ]
     }
   ],
   "payments": [
@@ -511,6 +556,18 @@
       "createdAt": "2026-09-03T19:54:30.573Z",
       "mpesaRef": "SIMDJD905JM",
       "paidAt": "2026-09-03T19:54:31.499Z"
+    },
+    {
+      "id": "PAY-1788534565696",
+      "deliveryId": "DEL-1009",
+      "riderId": "u3",
+      "phone": "0114130734",
+      "amount": 2,
+      "status": "PAID",
+      "checkoutRequestId": "ws_CO_040920261810442114130734",
+      "createdAt": "2026-09-04T15:09:25.696Z",
+      "mpesaRef": "UI21N5KPAW",
+      "paidAt": "20260902111309"
     }
   ]
 }
